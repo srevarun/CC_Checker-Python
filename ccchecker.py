@@ -1,6 +1,11 @@
+
+
+
 import os
 import json
 import requests
+
+#Made By Bheemesh
 
 
 succcess = open("python3.8/cvc.txt", "a")
@@ -116,8 +121,9 @@ def checker(cc,jsonrandom):
             checked.write(cc)
             checked.write('\n')
             print("CVC CHECK PASS")
-            succcess.write(cc+"-----")
+            succcess.write("CVV"+"-----"+str(cc))
             succcess.write(responser.text)
+
             print(cc)
 
         #This means the Proxy is Dead (Change the IP of your VPN)
@@ -137,8 +143,10 @@ def checker(cc,jsonrandom):
             print("CCN Found ")
             checked.write(cc)
             checked.write('\n')
-            succcess.write(cc)
+            #succcess.write(cc)
+            succcess.write("CCN"+"-"+str(cc))
             succcess.write(responser.text)
+            succcess.write("--------------------------------------------------------------------------")
         elif(jsonrespone["error"]["code"] == "card_declined"):
             print("Card Declined - "+str(cc))
             checked.write(cc)
@@ -175,4 +183,9 @@ def main():
 
 
 main()
+
+
+#-----------------------------------------Made By Bheemesh----------------------------------------------------------------------
+#Telegram ID : @hellosre
+#Telegram ID : @hellosre
 
