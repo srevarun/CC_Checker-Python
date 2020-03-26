@@ -8,9 +8,9 @@ import requests
 #Made By Bheemesh
 
 
-succcess = open("python3.8/cvc.txt", "a")
-checked = open("python3.8/checkcards.txt", "a")
-othercards = open("python3.8/othercards.txt", "a")
+succcess = open("cvc.txt", "a")
+checked = open("checkcards.txt", "a")
+othercards = open("othercards.txt", "a")
 
 def getnumber():
     read = open("num.txt","r")
@@ -140,7 +140,7 @@ def checker(cc,jsonrandom):
 
     elif (responser.status_code == 402):
         if(jsonrespone["error"]["code"] == "incorrect_cvc"):
-            print("CCN Found ")
+            print("CCN Found - " + str(cc))
             checked.write(cc)
             checked.write('\n')
             #succcess.write(cc)
@@ -180,6 +180,11 @@ def main():
         increment() #This is to Increment the CC count
         print('--------------------------------------------------------------------'+str(num)+'------------------------------------------')
         num = num + 1
+
+def addsuccess(text):
+    success = open("cvc.txt","a")
+    success.write(text)
+    success.close()
 
 
 main()
