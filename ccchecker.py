@@ -60,6 +60,14 @@ def randomproxy():
     proxiesread.close()
     return proxywithprotocol
 
+def addworkingproxy(proxy):
+    checkedproxy = open(""
+                        ""
+                        ""
+                        ".txt","a")
+    checkedproxy.write(proxy)
+    checkedproxy.write("\n")
+    checkedproxy.close()
 
 
 
@@ -165,6 +173,7 @@ def checker(cc,jsonrandom):
             elif (jsonrespone["card"]["cvc_check"] == "pass"):
                 checked.write(cc)
                 checked.write('\n')
+                addworkingproxy(proxyfromfunction)
                 print("CVC CHECK PASS")
                 succcess.write("CVV" + "-----" + str(cc))
                 succcess.write(responser.text)
@@ -191,6 +200,7 @@ def checker(cc,jsonrandom):
                 checked.write(cc)
                 checked.write('\n')
                 # succcess.write(cc)
+                addworkingproxy(proxyfromfunction)
                 succcess.write("CCN" + "-" + str(cc))
                 succcess.write(responser.text)
                 succcess.write("--------------------------------------------------------------------------")
@@ -198,10 +208,12 @@ def checker(cc,jsonrandom):
                 print("Card Declined - " + str(cc))
                 checked.write(cc)
                 checked.write('\n')
+                addworkingproxy(proxyfromfunction)
                 othercards.write(cc)
                 othercards.write(responser.text)
                 othercards.write("------------------------------------------------------------------------")
             elif (jsonrespone["error"]["code"] == "expired_card"):
+
                 checked.write(cc)
                 checked.write('\n')
                 print("Expired Card - " + str(cc))
