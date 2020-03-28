@@ -11,6 +11,7 @@ This Python based program checks your given Credit Card List and returns if it i
  - Add the proxies to proxies.txt
  - Start the Checker , that is cchecker.py
  - All the CCN and CVV cards will be saved in the success.txt file.
+ - All working proxies will be added to checkedproxies file
  
  *Since this is a proxy based checker , it's slow . If you want the VPN based checker , check the releases.
 
