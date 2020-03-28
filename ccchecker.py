@@ -61,10 +61,7 @@ def randomproxy():
     return proxywithprotocol
 
 def addworkingproxy(proxy):
-    checkedproxy = open(""
-                        ""
-                        ""
-                        ".txt","a")
+    checkedproxy = open("checkedproxy.txt","a")
     checkedproxy.write(proxy)
     checkedproxy.write("\n")
     checkedproxy.close()
